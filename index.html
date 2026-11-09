@@ -192,6 +192,13 @@
 
     .admin-action-feedback{min-height:24px;margin:0 0 16px;color:#68441e;font-size:14px;font-weight:800}
     .admin-tools button:active,.admin-tools a:active{transform:translateY(1px);filter:brightness(.9)}
+    /* Табло занимает доступную площадь экрана и сохраняет пропорции индикатора. */
+    .page-screen .wrap{width:100vw!important;height:100vh!important;height:100dvh!important;min-height:100svh!important;max-height:none!important;padding:clamp(10px,2vh,28px) clamp(10px,2vw,36px)!important}
+    .page-screen .vote-board{grid-template-rows:auto minmax(0,1fr)!important;gap:clamp(6px,1.4vh,18px)!important;padding:0!important}
+    .page-screen .vote-board h2{padding:0!important;margin:0!important;font-size:clamp(20px,min(3.2vw,6vh),64px)!important;letter-spacing:.08em!important}
+    .page-screen .vote-board .gauge-window{grid-row:2;width:min(96vw,calc((100dvh - clamp(96px,14vh,180px))*1.7778),3200px)!important;height:auto!important;max-height:calc(100dvh - clamp(96px,14vh,180px))!important;aspect-ratio:16/9!important}
+    .page-screen .vote-board .abstain{display:none!important}
+    .page-screen .vote-numbers{display:none!important}
     .mobile-host-pair{display:none}
     @media(max-width:800px){
       body:not(.page-admin):not(.page-screen) .hero-cast{display:none!important}
