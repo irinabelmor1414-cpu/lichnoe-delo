@@ -192,6 +192,8 @@
 
     .admin-action-feedback{min-height:24px;margin:0 0 16px;color:#68441e;font-size:14px;font-weight:800}
     .admin-tools button:active,.admin-tools a:active{transform:translateY(1px);filter:brightness(.9)}
+    /* На телефонах ведущие стоят выше колеса и остаются видны целиком. */
+    @media(max-width:800px){body:not(.page-admin):not(.page-screen) .hero-cast{top:clamp(28px,5vh,44px)!important;width:min(110vw,620px)!important;height:min(52vh,520px)!important}body:not(.page-admin):not(.page-screen) .wheel-shell{margin-top:clamp(110px,16vh,140px)!important}}
   </style>
 </head>
 <body>
