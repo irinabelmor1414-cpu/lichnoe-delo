@@ -319,7 +319,7 @@
     const recentTouchAt=new WeakMap();
     document.querySelectorAll('.choice').forEach(btn=>{
       btn.addEventListener('pointerup',event=>{if(event.pointerType!=='touch')return;recentTouchAt.set(btn,performance.now());handleChoice(btn)},{passive:true});
-      btn.addEventListener('click',event=>{const lastTouch=recentTouchAt.get(btn)||0;if(performance.now()-lastTouch<800){event.preventDefault();recentTouchAt.delete(btn);return}handleChoice(btn)});
+      btn.addEventListener('click',event=>{const lastTouch=recentTouchAt.get(btn)||0;if(lastTouch>0&&performance.now()-lastTouch<800){event.preventDefault();recentTouchAt.delete(btn);return}handleChoice(btn)});
     });
     document.querySelector('#submitOwn').addEventListener('click',async()=>{const text=document.querySelector('#ownText').value.trim();if(!text){document.querySelector('#ownText').focus();return}await castVote('Свой вариант',text);if(selected==='Свой вариант')document.querySelector('#ownModal').classList.remove('show')});
     function closeOwn(){document.querySelector('#ownModal').classList.remove('show')}document.querySelector('#closeOwn').addEventListener('click',closeOwn);document.querySelector('#cancelOwn').addEventListener('click',closeOwn);document.querySelector('#ownModal').addEventListener('click',e=>{if(e.target.id==='ownModal')closeOwn()});
