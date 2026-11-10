@@ -261,7 +261,7 @@
     <p class="footnote"><strong>Важно:</strong> попытка сохраняется в этом браузере на этом устройстве. Количество ограниченных призов здесь не учитывается между разными посетителями.</p>
   </main>
   <section class="admin-panel" id="adminPanel">
-    <h2>Пульт управления</h2><p class="intro">Голоса зрителей поступают с общего сервера. Ведущий может задать цифры для показа, и общее табло обновится на всех устройствах. Эти цифры не меняют сохранённые голоса участников.</p>
+    <h2>Пульт управления</h2><p class="intro">Голоса зрителей поступают с общего сервера. После показа нулей следующий голос участника вернёт табло к реальным результатам. Другие ручные цифры остаются отдельно от голосов участников.</p>
     <h3>Реальные голоса зрителей</h3>
     <div class="live-vote-summary" aria-live="polite"><span>Психология <strong id="realPsychCount">0</strong></span><span>Нумерология <strong id="realNumerCount">0</strong></span><span>Свои варианты <strong id="realAbstainCount">0</strong></span><span>Всего <strong id="realTotalCount">0</strong></span></div>
     <h3>Цифры для показа на табло</h3><p class="intro">Эти цифры можно менять отдельно от реальных голосов, например для хода шоу.</p>
@@ -338,7 +338,9 @@
     function handleChoice(btn){if(btn.dataset.choice==='Свой вариант'){document.querySelector('#ownText').value=ownEntries.find(entry=>entry.id===voterId)?.text||'';document.querySelector('#ownModal').classList.add('show');document.querySelector('#ownText').focus();return}castVote(btn.dataset.choice)}
     const recentTouchAt=new WeakMap();
     function choiceFromEvent(event){const target=event.target;return target instanceof Element?target.closest('button.choice'):null}
-    document.addEventListener('pointerup',event=>{const btn=choiceFromEvent(event);if(!btn||event.pointerType!=='touch')return;recentTouchAt.set(btn,performance.now());handleChoice(btn)},{capture:true,passive:true});
+    function activateTouchChoice(btn){const now=performance.now();const previous=recentTouchAt.get(btn)||0;recentTouchAt.set(btn,now);if(previous>0&&now-previous<100)return;handleChoice(btn)}
+    document.addEventListener('pointerup',event=>{const btn=choiceFromEvent(event);if(!btn||event.pointerType!=='touch')return;activateTouchChoice(btn)},{capture:true,passive:true});
+    document.addEventListener('touchend',event=>{const btn=choiceFromEvent(event);if(btn)activateTouchChoice(btn)},{capture:true,passive:true});
     document.addEventListener('click',event=>{const btn=choiceFromEvent(event);if(!btn)return;const lastTouch=recentTouchAt.get(btn)||0;if(lastTouch>0&&performance.now()-lastTouch<1000){event.preventDefault();event.stopImmediatePropagation();recentTouchAt.delete(btn);return}handleChoice(btn)},true);
     document.querySelector('#submitOwn').addEventListener('click',async()=>{const text=document.querySelector('#ownText').value.trim();if(!text){document.querySelector('#ownText').focus();return}await castVote('Свой вариант',text);if(selected==='Свой вариант')document.querySelector('#ownModal').classList.remove('show')});
     function closeOwn(){document.querySelector('#ownModal').classList.remove('show')}document.querySelector('#closeOwn').addEventListener('click',closeOwn);document.querySelector('#cancelOwn').addEventListener('click',closeOwn);document.querySelector('#ownModal').addEventListener('click',e=>{if(e.target.id==='ownModal')closeOwn()});
