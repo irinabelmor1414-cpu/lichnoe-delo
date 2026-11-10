@@ -222,6 +222,10 @@
     .page-screen .vote-numbers span{padding:7px 12px;border:1px solid #d3a05277;border-radius:3px;background:#09080766}
     .page-screen .vote-numbers strong{color:#fff1d2;font-size:1.15em}
     @media(max-width:800px){.page-screen .vote-board{gap:6px!important}.page-screen .vote-numbers{gap:4px;font-size:10px}.page-screen .vote-numbers span{padding:5px 6px}}
+    .live-vote-summary{display:flex;flex-wrap:wrap;gap:8px 14px;margin:14px 0 22px;padding:12px 14px;border:1px solid #d1a45d;background:#f5e2bf;color:#68441e}
+    .live-vote-summary span{font-size:14px;font-weight:750}
+    .live-vote-summary strong{margin-left:4px;font-size:20px;color:#3b230f}
+    @media(max-width:700px){.live-vote-summary{gap:7px 10px;padding:11px}.live-vote-summary span{font-size:12px}.live-vote-summary strong{font-size:18px}}
   </style>
 </head>
 <body>
@@ -258,7 +262,9 @@
   </main>
   <section class="admin-panel" id="adminPanel">
     <h2>Пульт управления</h2><p class="intro">Голоса зрителей поступают с общего сервера. Ведущий может задать цифры для показа, и общее табло обновится на всех устройствах. Эти цифры не меняют сохранённые голоса участников.</p>
-    <h3>Результаты голосования</h3>
+    <h3>Реальные голоса зрителей</h3>
+    <div class="live-vote-summary" aria-live="polite"><span>Психология <strong id="realPsychCount">0</strong></span><span>Нумерология <strong id="realNumerCount">0</strong></span><span>Свои варианты <strong id="realAbstainCount">0</strong></span><span>Всего <strong id="realTotalCount">0</strong></span></div>
+    <h3>Цифры для показа на табло</h3><p class="intro">Эти цифры можно менять отдельно от реальных голосов, например для хода шоу.</p>
     <div class="score-fields">
       <label>Психология<input id="editPsych" type="number" min="0" step="1"></label>
       <label>Нумерология<input id="editNumer" type="number" min="0" step="1"></label>
@@ -320,7 +326,7 @@
     document.querySelector('#adminLoginButton').addEventListener('click',loginAdmin);
     document.querySelector('#adminPin').addEventListener('keydown',event=>{if(event.key==='Enter')loginAdmin()});
     function saveVotes(){localStorage.setItem(votesKey,JSON.stringify(votes));renderGauge()}
-    function renderGauge(){const shown=displayOverride||votes;const p=Number(shown.psychology)||0,n=Number(shown.numerology)||0,a=Number(shown.abstain)||0;const ratio=gaugeOverride===null?Math.max(0,Math.min(1,.5+(n-p)/(2*gaugeStepsToEdge))):Math.max(0,Math.min(100,Number(gaugeOverride)))/100;document.querySelector('#psychCount').textContent=p;document.querySelector('#numerCount').textContent=n;document.querySelector('#abstainCount').textContent=a;document.querySelector('#totalCount').textContent=p+n+a;document.querySelector('#needle').style.transform='translateX(-50%) rotate('+(ratio*180-90)+'deg)';const setIfUnfocused=(selector,value)=>{const input=document.querySelector(selector);if(document.activeElement!==input)input.value=value};setIfUnfocused('#editPsych',p);setIfUnfocused('#editNumer',n);setIfUnfocused('#editAbstain',a);setIfUnfocused('#expectedVotes',expectedVotes);document.querySelector('#gaugeStepSummary').textContent='Шаг стрелки: 1/'+gaugeStepsToEdge+' от центра к краю';const slider=document.querySelector('#gaugeControl');const position=Math.round(ratio*100);if(document.activeElement!==slider)slider.value=position;document.querySelector('#gaugeControlValue').textContent=(100-position)+' / '+position}
+    function renderGauge(){const realP=Number(votes.psychology)||0,realN=Number(votes.numerology)||0,realA=Number(votes.abstain)||0;document.querySelector('#realPsychCount').textContent=realP;document.querySelector('#realNumerCount').textContent=realN;document.querySelector('#realAbstainCount').textContent=realA;document.querySelector('#realTotalCount').textContent=realP+realN+realA;const shown=displayOverride||votes;const p=Number(shown.psychology)||0,n=Number(shown.numerology)||0,a=Number(shown.abstain)||0;const ratio=gaugeOverride===null?Math.max(0,Math.min(1,.5+(n-p)/(2*gaugeStepsToEdge))):Math.max(0,Math.min(100,Number(gaugeOverride)))/100;document.querySelector('#psychCount').textContent=p;document.querySelector('#numerCount').textContent=n;document.querySelector('#abstainCount').textContent=a;document.querySelector('#totalCount').textContent=p+n+a;document.querySelector('#needle').style.transform='translateX(-50%) rotate('+(ratio*180-90)+'deg)';const setIfUnfocused=(selector,value)=>{const input=document.querySelector(selector);if(document.activeElement!==input)input.value=value};setIfUnfocused('#editPsych',p);setIfUnfocused('#editNumer',n);setIfUnfocused('#editAbstain',a);setIfUnfocused('#expectedVotes',expectedVotes);document.querySelector('#gaugeStepSummary').textContent='Шаг стрелки: 1/'+gaugeStepsToEdge+' от центра к краю';const slider=document.querySelector('#gaugeControl');const position=Math.round(ratio*100);if(document.activeElement!==slider)slider.value=position;document.querySelector('#gaugeControlValue').textContent=(100-position)+' / '+position}
     function availablePrizes(){return totalWins>=totalGiftsLimit?[]:prizes.filter(p=>(p.id!=='show-ticket'||ticketWins<ticketLimit)&&(p.id!=='phoenix-month'||phoenixWins<phoenixLimit))}
     function renderWheel(){const active=availablePrizes();wheel.replaceChildren();if(!active.length){wheel.style.background='conic-gradient(#26140d,#6d4527,#26140d)';return}const angle=360/active.length;const colors=['#d93f48','#fff','#191919','#fff','#2875db','#fff','#d93f48','#fff','#191919','#fff','#2875db'];const stops=active.map((_,i)=>`${colors[i%colors.length]} ${i*angle}deg ${(i+1)*angle}deg`).join(',');wheel.style.background=`conic-gradient(${stops})`;}
     function renderTicketWins(){document.querySelector('#ticketWinCount').textContent=ticketWins;document.querySelector('#ticketWinProgress').style.width=`${Math.min(100,ticketWins/ticketLimit*100)}%`;document.querySelector('#totalGiftCount').textContent=totalWins;document.querySelector('#totalGiftProgress').style.width=`${Math.min(100,totalWins/totalGiftsLimit*100)}%`}
